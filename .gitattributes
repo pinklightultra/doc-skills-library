@@ -1,0 +1,14 @@
+# Normalize line endings. These files are prompts read by a model; a stray CRLF
+# is noise in every diff.
+* text=auto eol=lf
+
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+LICENSE text eol=lf
+
+# Treat every markdown file, SKILL.md included, as prose for diff hunk headers.
+# `markdown` is a built-in funcname pattern (Git 2.31+).
+*.md diff=markdown

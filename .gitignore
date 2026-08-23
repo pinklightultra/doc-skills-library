@@ -1,0 +1,35 @@
+# Local configuration. Contains your hostnames, project keys, and field names.
+config.yml
+config.yaml
+config.local.*
+
+# Anything resolved from a real corpus or tracker
+docs/
+reports/
+*.export.json
+*_export.json
+index_status.json
+
+# Credentials. Nothing in this repo should ever reference one of these by path,
+# but ignore them so an accidental local file cannot be committed.
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+*secret*
+*token*
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python, in case you add tooling alongside
+__pycache__/
+*.py[cod]
+.venv/
+venv/

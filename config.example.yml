@@ -1,0 +1,122 @@
+# Copy to config.yml and fill in for your own stack. config.yml is gitignored.
+#
+# Skills in this library reference these keys by name rather than hardcoding
+# values. Where a skill says "the configured search command" or
+# "`fields.source_ticket`", it means a value from this file.
+
+docs:
+  # Root of the documentation corpus. A local checkout of markdown, or a cache
+  # directory a hosted-KB export is written into.
+  corpus_root: ./docs
+
+  # Command used for literal text search across the corpus. Must accept a query
+  # as its final argument and print file:line:match.
+  # Note: this is grep. It finds names, not topics. See README, "What is missing".
+  #
+  # The default is grep because it is present everywhere. ripgrep is faster and
+  # worth switching to IF you have it:
+  #
+  #   search_command: "rg -n --glob '**/*.md'"
+  #
+  # Verify it first. `rg` is absent from a default Windows and most Linux
+  # installs, and a missing binary does not fail loudly here: the shell returns
+  # "command not found" on stderr, the skill reads an empty result set, and an
+  # empty result set looks exactly like a clean corpus. That is the failure
+  # GUARDRAILS.md calls "absence of evidence is not evidence of absence", and
+  # shipping rg as the default made this file the most likely place to cause it.
+  # Whatever you set, run it once by hand and confirm you get a hit you expect.
+  search_command: "grep -rn --include=*.md"
+
+  # Optional. Command that returns semantically similar passages for a query.
+  # No default: this is a component you supply. Skills that would benefit from it
+  # degrade to search_command and say so in their report.
+  semantic_search_command: ""
+
+  # Public URL a reader would use, for citation. {slug} is substituted.
+  reader_url_template: "https://docs.example.com/{slug}"
+
+  # How this stack expresses audience. See README, "The audience-gating problem".
+  #   reader_group  - backend enforces per-audience read access at request time
+  #   frontmatter   - an article field, enforced at build time by two build targets
+  audience_model: frontmatter
+
+  # For audience_model: frontmatter, the field and the value that means
+  # "safe for external readers". /audit-docs-coverage reads audience_field, to
+  # keep internal-only articles out of client-facing gap totals. Nothing in this
+  # library reads external_audience_value yet, but any skill that decides whether
+  # a draft may go out needs to compare against a specific value rather than
+  # treating "the field is set" as approval.
+  audience_field: audience
+  external_audience_value: external
+
+  # Article lifecycle states in your backend, mapped to the three states the
+  # skills reason about. Hosted KBs use opaque integer codes and more than one
+  # code can mean "published"; enumerate them all or a live article will be
+  # miscounted as a stub.
+  status_map:
+    draft: [draft]
+    published: [published, live]
+    clone_artifact: [duplicate]
+
+  # Categories that document frozen past releases. Age is not decay here.
+  # /doc-decay-model suppresses its version-age signal for these.
+  archive_categories:
+    - "Prior Release Notes"
+    - "Archive"
+
+issue_tracker:
+  base_url: "https://tracker.example.com"
+
+  # Project keys. support = customer-reported; dev = engineering work items.
+  support_project: "SUPPORT"
+  dev_project: "DEV"
+
+  # Query template for recent support volume on one feature area. Query per
+  # feature or component; a free-text search for a release name returns
+  # scheduling noise instead of signal.
+  support_volume_query: 'project = {support_project} AND component = "{module}" AND created >= -365d'
+
+  # Optional second tracker holding pre-migration history, if you have one.
+  legacy_base_url: ""
+
+# Field names, not field ids. Hosted trackers expose custom fields under opaque
+# machine ids that differ per instance; resolve the id from the name at runtime
+# so a skill body never carries an instance-specific number.
+fields:
+  # Field on a work item naming the article or ticket that is its source of truth.
+  source_ticket: "Source Ticket"
+
+  # The four keys below are read by release-note skills, which are not part of this
+  # library. They are kept because the contract they describe is the transferable
+  # part, and because a skill you write against this config will want them.
+  #
+  # Boolean-ish field marking a work item as requiring a customer release note.
+  # This field is authoritative: if it is not set, do not write a note. Inferring
+  # "this looks customer-visible, so it needs a note" is how you end up announcing
+  # something that was never meant to ship.
+  release_notes_required: "Release Notes Required"
+
+  # The three-level grouping used to sort release notes. Adjust to your taxonomy.
+  # Level 1 is the broadest (a product suite), level 3 the narrowest (a component).
+  grouping_level_1: "Suite"
+  grouping_level_2: "Solution"
+  grouping_level_3: "Area"
+
+index:
+  # Optional local index over the corpus, if you maintain one.
+  status_command: ""
+  sync_command: ""
+  max_age_days: 2
+
+lookup:
+  # Command /stop-and-reference invokes to resolve an unfamiliar term against
+  # the corpus and trackers. Takes the term as its final argument.
+  reference_command: ""
+
+  # Optional linter run over a draft before publish. Should exit non-zero on an
+  # unresolved placeholder or an unverifiable config value.
+  lint_command: ""
+
+reports:
+  # Where /kb-health-sweep writes its dated reports and rolling snapshot.
+  output_dir: ./reports/kb-health
