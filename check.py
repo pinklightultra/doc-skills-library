@@ -24,7 +24,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # bug, but it should be a deliberate edit to both the constant and the README,
 # not a surprise.
 EXPECTED_SKILL_COUNT = 21
-EXPECTED_LOCAL_LINKS = 34
+EXPECTED_LOCAL_LINKS = 47
 
 # Mirrors the README "Limitations" section. check_contract() also verifies the
 # README still names these same skills, so the two cannot drift apart.
