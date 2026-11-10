@@ -6,12 +6,14 @@
 
 docs:
   # Root of the documentation corpus. A local checkout of markdown, or a cache
-  # directory a hosted-KB export is written into.
-  corpus_root: ./docs
+  # directory a hosted-KB export is written into. Not this repo's docs/
+  # directory: those files are the library's own pages, and check.py reads
+  # them. corpus/ is gitignored.
+  corpus_root: ./corpus
 
   # Command used for literal text search across the corpus. Must accept a query
   # as its final argument and print file:line:match.
-  # Note: this is grep. It finds names, not topics. See README, "What is missing".
+  # Note: this is grep. It finds names, not topics. See docs/limits.md, "What is missing".
   #
   # The default is grep because it is present everywhere. ripgrep is faster and
   # worth switching to IF you have it:
@@ -35,7 +37,7 @@ docs:
   # Public URL a reader would use, for citation. {slug} is substituted.
   reader_url_template: "https://docs.example.com/{slug}"
 
-  # How this stack expresses audience. See README, "The audience-gating problem".
+  # How this stack expresses audience. See docs/limits.md, "The audience-gating problem".
   #   reader_group  - backend enforces per-audience read access at request time
   #   frontmatter   - an article field, enforced at build time by two build targets
   audience_model: frontmatter

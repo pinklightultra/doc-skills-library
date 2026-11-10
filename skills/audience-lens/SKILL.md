@@ -31,7 +31,7 @@ An article (slug or id) or draft. If none, ask.
 
 4. **Recommend, with the split or restructure sketch.** If splitting, name the resulting articles and say what goes in each. If restructuring, give the section order that separates the audiences cleanly.
 
-5. **Check that the split is enforceable on your backend before recommending it as a safety measure.** Separating internal-support detail into its own article only protects it if your stack can actually restrict who reads that article. On a per-audience read-access backend it can. On a static site it cannot: see the audience-gating note in the README. If `docs.audience_model` is `frontmatter`, present the split as an organizational improvement and say plainly that it is not an access control.
+5. **Check that the split is enforceable on your backend before recommending it as a safety measure.** Separating internal-support detail into its own article only protects it if your stack can actually restrict who reads that article. On a per-audience read-access backend it can. On a static site it cannot: see [The audience-gating problem](../../docs/limits.md#the-audience-gating-problem). If `docs.audience_model` is `frontmatter`, present the split as an organizational improvement and say plainly that it is not an access control.
 
 ## Output Format
 
