@@ -3,8 +3,18 @@ config.yml
 config.yaml
 config.local.*
 
-# Anything resolved from a real corpus or tracker
-docs/
+# A real corpus, and anything a sweep writes. The flat docs/*.md pages are
+# this library's own documentation and are tracked by name. Nested files
+# under docs/ stay ignored, so an export dropped in a subdirectory is not
+# committed. check.py scans those flat pages and skips corpus/ and reports/.
+corpus/
+docs/*
+!docs/approach.md
+!docs/background.md
+!docs/install.md
+!docs/limits.md
+!docs/proof.md
+!docs/using.md
 reports/
 *.export.json
 *_export.json

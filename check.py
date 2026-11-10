@@ -9,8 +9,9 @@ These skills are prompts; their behaviour is a model's behaviour and is not
 testable from here. Everything below is a property of the files on disk, which is
 the part that can rot silently while still looking fine in a diff.
 
-Each check corresponds to a claim the README makes. If a check and the README
-disagree, the README is wrong.
+Each check corresponds to a claim the README makes (the skill table, the
+Limitations exceptions, the link count) or that docs/proof.md spells out.
+If a check and that writeup disagree, the writeup is wrong.
 """
 
 import os
@@ -21,10 +22,10 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # --- baselines -------------------------------------------------------------
 # Counted by this script on a clean tree. A change here is not automatically a
-# bug, but it should be a deliberate edit to both the constant and the README,
-# not a surprise.
+# bug, but it should be a deliberate edit to the constant, the README, and
+# docs/proof.md, not a surprise.
 EXPECTED_SKILL_COUNT = 21
-EXPECTED_LOCAL_LINKS = 47
+EXPECTED_LOCAL_LINKS = 70
 
 # Mirrors the README "Limitations" section. check_contract() also verifies the
 # README still names these same skills, so the two cannot drift apart.
@@ -42,7 +43,11 @@ SMART_QUOTES = {
     "\u201d": "right double quote",
 }
 
-SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", ".idea", ".vscode", "docs", "reports"}
+# corpus/ is the example knowledge-base drop. reports/ is sweep output.
+# docs/ is not skipped: the flat markdown files there are this library's own
+# pages and are part of the contract. walk_files() does not descend into
+# subdirectories of docs/, so a nested export is not scanned as repo prose.
+SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", ".idea", ".vscode", "corpus", "reports"}
 # config.yml is the gitignored local file holding real hostnames and project
 # keys. It is not part of the published repo, so it is not this script's
 # business and scanning it would report the user's own values back at them.
@@ -66,7 +71,15 @@ def fail(check, message):
 def walk_files():
     found = []
     for dirpath, dirnames, filenames in os.walk(ROOT):
-        dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
+        rel_dir = os.path.relpath(dirpath, ROOT).replace("\\", "/")
+        if rel_dir == "docs":
+            # Library pages are the flat markdown files. A nested tree is a
+            # corpus someone pointed at this directory, and scanning it would
+            # report their articles as this repo's failures.
+            dirnames[:] = []
+            filenames = [fn for fn in filenames if fn.lower().endswith(".md")]
+        else:
+            dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
         for fn in sorted(filenames):
             if fn in SKIP_FILES or fn.endswith((".pyc", ".pyo")):
                 continue
@@ -189,7 +202,8 @@ def check_links():
     out("  %d markdown files, %d local links, %d dangling" % (len(MD_FILES), total, dangling))
     if total != EXPECTED_LOCAL_LINKS:
         fail("links", "local link count is %d, expected %d. If the change was "
-                      "intentional, update EXPECTED_LOCAL_LINKS and the README."
+                      "intentional, update EXPECTED_LOCAL_LINKS, the README, "
+                      "and docs/proof.md."
              % (total, EXPECTED_LOCAL_LINKS))
 
 
@@ -507,7 +521,7 @@ def check_typography():
 # bare value with no key next to it (a lone hex or base64 blob is
 # indistinguishable from a hash or an example); an internal hostname that is not
 # under atlassian.net; employee or customer names; a real customfield id quoted
-# in prose (the README quotes one on purpose, as an anti-example); a credential
+# in prose (docs/limits.md quotes one on purpose, as an anti-example); a credential
 # inside an image.
 #
 # AND THIS FILE. check_secrets skips check.py, because the patterns above would
@@ -532,7 +546,7 @@ PLACEHOLDER_RE = re.compile(
 # Project keys are tenant identifiers, so they are configured rather than baked
 # in. This line used to hardcode three real ones, which put the exact class of
 # string the check looks for into the checker that looks for it. Same reasoning
-# as the custom field ids in the README: yours will differ.
+# as the custom field ids in docs/limits.md: yours will differ.
 TICKET_PREFIXES = [p.strip() for p in
                    os.environ.get("DOC_SKILLS_TICKET_PREFIXES", "PROJ,OPS,TMPL").split(",")
                    if p.strip()]
